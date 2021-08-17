@@ -11,7 +11,7 @@ from msedge.selenium_tools import EdgeOptions
 from msedge.selenium_tools import Edge
 
 class PopCat:
-    def __init__(self, head: bool = True):
+    def __init__(self, driver_name: str = "", head: bool = True):
         driver_options = EdgeOptions()
         driver_options.add_argument("--mute-audio")
         driver_options.add_argument("disable-gpu")
@@ -20,7 +20,7 @@ class PopCat:
         self.button = None
         try:
             self.driver = Edge(
-                executable_path=os.path.join(self.cwd, "msedgedriver.exe"),
+                executable_path=os.path.join(self.cwd, driver_name),
                 options=driver_options,
             )
             self.driver.set_window_size(400, 580)
@@ -61,7 +61,7 @@ class PopCat:
 
 if __name__ == "__main__":
     try:
-        PopCat().pop_loop()
+        PopCat("msedgedriver.exe").pop_loop()
     except Exception as err:
         print (err)
     sys.exit()
