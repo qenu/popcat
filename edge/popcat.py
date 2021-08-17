@@ -7,14 +7,15 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     NoSuchWindowException,
 )
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from msedge.selenium_tools import EdgeOptions
 from msedge.selenium_tools import Edge
 
+
 class PopCat:
-    def __init__(self, driver_name: str = "", head: bool = True):
+    def __init__(self, driver_name: str, head: bool = True):
         driver_options = EdgeOptions()
-        driver_options.add_argument("--mute-audio")
-        driver_options.add_argument("disable-gpu")
         driver_options.headless = not head
         self.cwd = os.getcwd()
         self.button = None
@@ -23,8 +24,16 @@ class PopCat:
                 executable_path=os.path.join(self.cwd, driver_name),
                 options=driver_options,
             )
-            self.driver.set_window_size(400, 580)
 
+            from pynput.keyboard import Key, Controller
+
+            mute = Controller()
+            mute.press(Key.ctrl)
+            mute.press("m")
+            mute.release("m")
+            mute.release(Key.ctrl)
+
+            self.driver.set_window_size(400, 580)
             self.driver.get("https://popcat.click/")
         except TimeoutException:
             print("init connection timed out!")
@@ -63,5 +72,5 @@ if __name__ == "__main__":
     try:
         PopCat("msedgedriver.exe").pop_loop()
     except Exception as err:
-        print (err)
+        print(err)
     sys.exit()
