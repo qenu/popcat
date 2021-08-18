@@ -9,6 +9,7 @@ from selenium.common.exceptions import (
     TimeoutException,
     NoSuchElementException,
     NoSuchWindowException,
+    WebDriverException
 )
 
 
@@ -51,7 +52,10 @@ class PopCat:
 
     def pop(self) -> None:
         """starts clicking popcat"""
-        self.button.click()
+        try:
+            self.button.click()
+        except WebDriverException:
+            raise NoSuchWindowException
 
     def _count(self) -> None:
         """returns the current count of clicks"""
@@ -82,8 +86,10 @@ class PopCat:
         self.thread = threading.Thread(target=self._loop)
         self.thread.start()
 
-    def clickloop(self) -> None:
-        """800 pops per 30 seconds, refresh cookies per 300 seconds"""
+    def clickloop(self, *, safemode: bool=False) -> None:
+        """limited pop and automatic refresh"""
+        pop_limit = 750 if safemode else 800
+        auto_refresh = sys.maxsize if safemode else 10
         if self.button == None:
             self.fetch()
         try:
@@ -91,10 +97,10 @@ class PopCat:
             while True:
                 minute_time = time.time()
                 pop_count = []
-                for i in range(10):
+                for i in range(auto_refresh):
                     second_time = time.time()
                     self.start()
-                    while not (time.time() - second_time > 29 or self.num > 800):
+                    while not (time.time() - second_time > 29 or self.num > pop_limit):
                         time.sleep(0.5)
                     self.stop()
                     used = time.time() - second_time
@@ -119,7 +125,7 @@ class PopCat:
 if __name__ == "__main__":
     try:
         cat = PopCat("chromedriver.exe")
-        cat.clickloop()
+        cat.clickloop(safemode=True)
     except Exception as err:
         print(err)
         try:
